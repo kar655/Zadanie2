@@ -1,4 +1,5 @@
 (** Typ złączalnej kolejki priorytetowej *)
+(** wartosc * prawa wysokosc * lewe poddrzewo * prawe poddrzewo **)
 type 'a queue =
 | Node of 'a * int * 'a queue * 'a queue
 | Null
@@ -20,18 +21,19 @@ let rec join (q1: 'a queue) (q2: 'a queue) =
       match l1 with
       | Null -> Node(value1, rheight3, q3, Null)
       | Node(_, rheightl1, _, _) ->
-        if rheightl1 <= rheight3 then
+        if rheightl1 <= rheight3 then   (* aby zachowac lewicowosc *)
           Node(value1, rheightl1, q3, l1)
         else
           Node(value1, rheight3, l1, q3)
 
     else
-
+      (* gdyby Null = join r2 q1 to r2 i q1 musialoby byc Null
+      ale gdyby q1 bylo Null to wczesniejscy match by sie odpalil *)
       let Node(_, rheight3, _, _) as q3 = join r2 q1 in
       match l2 with
       | Null -> Node(value2, rheight3, q3, Null)
       | Node(_, rheightl2, _, _) ->
-        if rheightl2 <= rheight3 then
+        if rheightl2 <= rheight3 then   (* aby zachowac lewicowosc *)
           Node(value2, rheightl2, q3, l2)
         else
           Node(value2, rheight3, l2, q3)
@@ -54,4 +56,4 @@ let delete_min (q: 'a queue) =
 
 (** Zwraca [true] jeśli dana kolejka jest pusta. W przeciwnym razie [false] *)
 let is_empty (q: 'a queue) =
-  if q = Null then true else false
+  q = Null
