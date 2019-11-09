@@ -11,8 +11,8 @@ let (empty: 'a queue) = Null
 let rec join (q1: 'a queue) (q2: 'a queue) =
   match q1, q2 with
   | Null, Null -> Null
-  | q1, Null -> q1
-  | Null, q2 -> q2
+  | _, Null -> q1
+  | Null, _ -> q2
   | Node(value1, rheight1, l1, r1), Node(value2, rheight2, l2, r2) ->
     if value1 <= value2 then
       (* gdyby Null = join r1 q2 to r1 i q2 musialoby byc Null
@@ -22,9 +22,9 @@ let rec join (q1: 'a queue) (q2: 'a queue) =
       | Null -> Node(value1, rheight3, q3, Null)
       | Node(_, rheightl1, _, _) ->
         if rheightl1 <= rheight3 then   (* aby zachowac lewicowosc *)
-          Node(value1, rheightl1, q3, l1)
+          Node(value1, rheightl1 + 1, q3, l1)
         else
-          Node(value1, rheight3, l1, q3)
+          Node(value1, rheight3 + 1, l1, q3)
 
     else
       (* gdyby Null = join r2 q1 to r2 i q1 musialoby byc Null
@@ -34,9 +34,9 @@ let rec join (q1: 'a queue) (q2: 'a queue) =
       | Null -> Node(value2, rheight3, q3, Null)
       | Node(_, rheightl2, _, _) ->
         if rheightl2 <= rheight3 then   (* aby zachowac lewicowosc *)
-          Node(value2, rheightl2, q3, l2)
+          Node(value2, rheightl2 + 1, q3, l2)
         else
-          Node(value2, rheight3, l2, q3)
+          Node(value2, rheight3 + 1, l2, q3)
 
 (** [add e q] zwraca kolejkę powstałą z dołączenia elementu [e]
     do kolejki [q] *)
@@ -57,3 +57,42 @@ let delete_min (q: 'a queue) =
 (** Zwraca [true] jeśli dana kolejka jest pusta. W przeciwnym razie [false] *)
 let is_empty (q: 'a queue) =
   q = Null
+
+
+
+(*-----------------------Przykladowe testy-----------------------*)
+
+let a = add 10 empty;;
+let a = add 12 a;;
+let a = add 5 a;;
+
+let b = add 8 empty;;
+let b = add 14 b;;
+let b = add 7 b;;
+let b = add 3 b;;
+
+let c = join a b;;
+let (e, c) = delete_min c;;
+assert(e = 3);;
+
+let (e, c) = delete_min c;;
+assert(e = 5);;
+
+let (e, c) = delete_min c;;
+assert(e = 7);;
+
+let (e, c) = delete_min c;;
+assert(e = 8);;
+
+let (e, c) = delete_min c;;
+assert(e = 10);;
+
+let (e, c) = delete_min c;;
+assert(e = 12);;
+
+let (e, c) = delete_min c;;
+assert(e = 14);;
+
+assert(is_empty c);;
+
+assert( try let _ = delete_min c in false with Empty -> true);;
