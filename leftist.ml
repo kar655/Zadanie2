@@ -7,6 +7,12 @@ type 'a queue =
 (** Pusta kolejka priorytetowa *)
 let (empty: 'a queue) = Null
 
+(* zwraca prawa wysokosc *)
+let get_height (q: 'a queue) =
+  match q with
+  | Null -> 0
+  | Node(_, h, _, _) -> h
+
 (** [join q1 q2] zwraca złączenie kolejek [q1] i [q2] *)
 let rec join (q1: 'a queue) (q2: 'a queue) =
   match q1, q2 with
@@ -15,9 +21,9 @@ let rec join (q1: 'a queue) (q2: 'a queue) =
   | Null, _ -> q2
   | Node(value1, rheight1, l1, r1), Node(value2, rheight2, l2, r2) ->
     if value1 <= value2 then
-      (* gdyby Null = join r1 q2 to r1 i q2 musialoby byc Null
-      ale gdyby q2 bylo Null to wczesniejscy match by sie odpalil *)
-      let Node(_, rheight3, _, _) as q3 = join r1 q2 in
+
+      let q3 = join r1 q2 in
+      let rheight3 = get_height q3 in
       match l1 with
       | Null -> Node(value1, rheight3, q3, Null)
       | Node(_, rheightl1, _, _) ->
@@ -27,9 +33,9 @@ let rec join (q1: 'a queue) (q2: 'a queue) =
           Node(value1, rheight3 + 1, l1, q3)
 
     else
-      (* gdyby Null = join r2 q1 to r2 i q1 musialoby byc Null
-      ale gdyby q1 bylo Null to wczesniejscy match by sie odpalil *)
-      let Node(_, rheight3, _, _) as q3 = join r2 q1 in
+
+      let q3 = join r2 q1 in
+      let rheight3 = get_height q3 in
       match l2 with
       | Null -> Node(value2, rheight3, q3, Null)
       | Node(_, rheightl2, _, _) ->
